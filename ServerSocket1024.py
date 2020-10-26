@@ -51,6 +51,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         while True:
             thread1 = threading.Thread(target=decrease_loop)
             thread = threading.Thread(target=increase_loop)
+            thread2 = threading.Thread(target=random_loop)
             command = conn.recv(1024)            
             if repr(command) == "b'increase'":
                 if thread2.is_alive():
@@ -63,6 +64,11 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                     stop_threads = True
                 stop_threads = False
                 thread1.start()
+            if repr(command) == "b'random'":
+                if thread2.is_alive():
+                    stop_threads = True
+                stop_threads = False
+                thread2.start()
             if repr(command) == "b'stop'":
                 #threading.Thread(target=increase_loop).join()
                 stop_threads = True
@@ -72,9 +78,6 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                     thread1.join()
                 if thread2.is_alive():
                     thread2.join()
-            if repr(command) == "b'random'":
-                stop_threads = False
-                thread2.start()
                 
             #if not data:
              #   break
