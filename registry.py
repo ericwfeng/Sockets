@@ -12,8 +12,6 @@ class registry:
       else:
          print("The sensor reading is " + self.pressureSensorReading + " and it is in a critical state.")
 
-registry = registry()
-
       
       
       
