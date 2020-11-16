@@ -8,6 +8,7 @@ import socket
 from threading import Thread
 from time import sleep
 import random
+import pickle
 from PseudoPressureSensor import PseudoPressureSensor
 
 
@@ -23,28 +24,41 @@ def main():
             #while True:
                 #data = conn.recv(1024)
             sensor = PseudoPressureSensor(15, 510)
-            measure(conn, sensor)
-            # r = Thread(target=measure, args=[conn, sensor])
-            # r.daemon = True
-            # r.start()
+
+            t = Thread(target=transmit, args=[conn, sensor])
+            t.daemon = True
+            t.start()
             
             stop_threads = False
             while True:
                 if stop_threads==True:
                     break
 
-def measure(socket, sensor):
+def transmit(conn, sensor):
     """
-    Socket is the socket used to send data
     Transmit new pressure measurement / warning every second.
+    conn is the client socket
     """
-    measurement = sensor.measure()
-    info = [measurement, warning(measurement, 50, 460)]
+    command_sent = False
+    while not command_sent:
+        measurement = sensor.measure()
 
-    # Pickle converts objects into a format that can be sent via websocket.
-    socket.sendall(str(info[0]).encode('utf-8'))
-    socket.sendall(str(info[1]).encode('utf-8'))
-    sleep(1)
+        msg = "Waiting for command from ground station.\n"
+        
+        val = conn.recv(1024).decode('utf-8')
+
+        if val == 'True':
+            command_sent = True
+
+        if (command_sent):
+            msg = "Command Sent!\n"
+
+        info = [msg, measurement, warning(measurement, 50, 460)]
+
+        # Pickle converts objects into a format that can be sent via websocket.
+        packet = pickle.dumps(info)
+        conn.sendall(packet)
+        sleep(1)
 
 def warning(measurement, min, max):
     """

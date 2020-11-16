@@ -6,7 +6,10 @@ Created on Sat Oct 24 19:57:25 2020
 """
 
 import socket
+import pickle
+from time import sleep
 from threading import Thread
+from PseudoValve import PseudoValve
 
 def main():
     HOST = '127.0.0.1'
@@ -15,31 +18,42 @@ def main():
 
         s.connect((HOST, PORT))
 
-        r = Thread(target=recieve, args=[s])
-        t = Thread(target=transmit, args=[s])
+        valve = PseudoValve()
 
+        r = Thread(target=recieve, args=[s, valve])
         r.daemon = True
-
-        t.start()
         r.start()
+
 
         # prevents socket from closing
         while True:
             pass
-            
-def transmit(s):
-    """transmits data to server
-    s is the socket used to send data.
-    """
-    # while True:
 
-def recieve(s):
-    """recieves data from the server
+def recieve(s, valve):
+    """
+    recieves data from the server
     s is the socket used to receieve data.
     """
     while True:
-        recv_data = s.recv(1024).decode('utf-8')
-        # data = pickle.loads(s)
-        print(recv_data)
+        if valve.state == 'off':
+            msg = 'False'
+        else:
+            msg = 'True'
+        s.sendall(msg.encode('utf-8'))
+
+        msg = s.recv(4096)
+        data = pickle.loads(msg)
+
+        message = data[0]
+        pressure = data[1]
+        flag = data[2]
+
+        print(message, end="")
+        """ print(message, end="")
+        print(pressure)
+        print(flag) """
+
+        if flag:
+            valve.flip()
 
 main()
