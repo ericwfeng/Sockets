@@ -8,6 +8,7 @@ import socket
 from threading import Thread
 from time import sleep
 import random
+import pickle
 from PseudoPressureSensor import PseudoPressureSensor
 
 
@@ -24,9 +25,10 @@ def main():
                 #data = conn.recv(1024)
             sensor = PseudoPressureSensor(15, 510)
             measure(conn, sensor)
-            # r = Thread(target=measure, args=[conn, sensor])
-            # r.daemon = True
-            # r.start()
+
+            r = Thread(target=measure, args=[conn, sensor])
+            r.daemon = True
+            r.start()
             
             stop_threads = False
             while True:
@@ -38,13 +40,14 @@ def measure(socket, sensor):
     Socket is the socket used to send data
     Transmit new pressure measurement / warning every second.
     """
-    measurement = sensor.measure()
-    info = [measurement, warning(measurement, 50, 460)]
+    while True:
+        measurement = sensor.measure()
+        info = [measurement, warning(measurement, 50, 460)]
 
-    # Pickle converts objects into a format that can be sent via websocket.
-    socket.sendall(str(info[0]).encode('utf-8'))
-    socket.sendall(str(info[1]).encode('utf-8'))
-    sleep(1)
+        # Pickle converts objects into a format that can be sent via websocket.
+        packet = pickle.dumps(info)
+        socket.sendall(packet)
+        sleep(1)
 
 def warning(measurement, min, max):
     """

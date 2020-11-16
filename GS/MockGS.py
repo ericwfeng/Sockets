@@ -6,6 +6,7 @@ Created on Sat Oct 24 19:57:25 2020
 """
 
 import socket
+import pickle
 from threading import Thread
 
 def main():
@@ -19,6 +20,7 @@ def main():
         t = Thread(target=transmit, args=[s])
 
         r.daemon = True
+        t.daemon = True
 
         t.start()
         r.start()
@@ -38,8 +40,11 @@ def recieve(s):
     s is the socket used to receieve data.
     """
     while True:
-        recv_data = s.recv(1024).decode('utf-8')
-        # data = pickle.loads(s)
-        print(recv_data)
+        msg = s.recv(4096)
+        data = pickle.loads(msg)
+        pressure = data[0]
+        flag = data[1]
+        print(pressure)
+        print(flag)
 
 main()
