@@ -4,5 +4,3 @@ class flag:
       self.giveWarning = False
       self.abortFlight = False
       self.actuatePressureRelease = False
-      
-flag = flag()

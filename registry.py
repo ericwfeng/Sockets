@@ -6,11 +6,11 @@ class registry:
       self.pressureSensorReading = pressureSensorReading  
          
    def viewReadings(self):
-      print("Pressure released yet: " + self.actuatePressureRelease)
+      print("Valve State: " + self.actuatePressureRelease)
       if self.pressureSensorReading > 460  or self.pressureSensorReading < 50:
-         print("The sensor reading is " + self.pressureSensorReading + " and everything is fine!")
+         print("The sensor reading is " + str(self.pressureSensorReading) + " Readings are NORMINAL")
       else:
-         print("The sensor reading is " + self.pressureSensorReading + " and it is in a critical state.")
+         print("The sensor reading is " + str(self.pressureSensorReading) + " and it is in a critical state."
 
       
       
