@@ -10,7 +10,7 @@ class registry:
       if self.pressureSensorReading > 460  or self.pressureSensorReading < 50:
          print("The sensor reading is " + str(self.pressureSensorReading) + " and it is in a critical state.")
       else:
-         print("The sensor reading is " + str(self.pressureSensorReading) + " Readings are NORMINAL"
+         print("The sensor reading is " + str(self.pressureSensorReading) + " Readings are NORMINAL")
 
       
       
